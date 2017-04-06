@@ -1,2 +1,2 @@
 # SQLiteCobol
-SQLite database for Cobol with patchs
+SQLite database for Cobol with patches
