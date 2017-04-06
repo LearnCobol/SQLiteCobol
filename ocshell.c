@@ -37,9 +37,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
-#include "sqlite3.h"
 #include <ctype.h>
 #include <stdarg.h>
+
+#include "sqlite3.h"
 
 #if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__)
 # include <signal.h>
@@ -96,14 +97,17 @@ static int enableTimer = 0;
 /*
 ** Begin timing an operation
 */
-static void beginTimer(void){
-    if( enableTimer ){
+static void beginTimer(void)
+{
+    if(enableTimer)
+    {
         getrusage(RUSAGE_SELF, &sBegin);
     }
 }
 
 /* Return the difference of two time_structs in microseconds */
-static int timeDiff(struct timeval *pStart, struct timeval *pEnd){
+static int timeDiff(struct timeval *pStart, struct timeval *pEnd)
+{
     return (pEnd->tv_usec - pStart->tv_usec) +
             1000000*(pEnd->tv_sec - pStart->tv_sec);
 }
@@ -111,8 +115,10 @@ static int timeDiff(struct timeval *pStart, struct timeval *pEnd){
 /*
 ** Print the timing results.
 */
-static void endTimer(void){
-    if( enableTimer ){
+static void endTimer(void)
+{
+    if(enableTimer)
+    {
         struct rusage sEnd;
         getrusage(RUSAGE_SELF, &sEnd);
         printf("CPU Time: user %f sys %f\n",
@@ -197,28 +203,42 @@ static void iotracePrintf(const char *zFormat, ...){
 /*
 ** Determines if a string is a number of not.
 */
-static int isNumber(const char *z, int *realnum){
-    if( *z=='-' || *z=='+' ) z++;
-    if( !isdigit(*z) ){
+static int isNumber(const char *str, int *realnum)
+{
+    if( *str == '-' || *str == '+' ) str++;
+    if( !isdigit(*str) )
+    {
         return 0;
     }
-    z++;
+    str++;
     if( realnum ) *realnum = 0;
-    while( isdigit(*z) ){ z++; }
-    if( *z=='.' ){
-        z++;
-        if( !isdigit(*z) ) return 0;
-        while( isdigit(*z) ){ z++; }
+    while( isdigit(*str) )
+    {
+        str++;
+    }
+
+    if( *str == '.' )
+    {
+        str++;
+        if( !isdigit(*str) ) return 0;
+        while( isdigit(*str) )
+        {
+            str++;
+        }
         if( realnum ) *realnum = 1;
     }
-    if( *z=='e' || *z=='E' ){
-        z++;
-        if( *z=='+' || *z=='-' ) z++;
-        if( !isdigit(*z) ) return 0;
-        while( isdigit(*z) ){ z++; }
+    if( *str == 'e' || *str == 'E' )
+    {
+        str++;
+        if( *str == '+' || *str == '-' ) str++;
+        if( !isdigit(*str) ) return 0;
+        while( isdigit(*str) )
+        {
+            str++;
+        }
         if( realnum ) *realnum = 1;
     }
-    return *z==0;
+    return *str == 0;
 }
 
 /*
@@ -235,7 +255,7 @@ static void shellstaticFunc(
         int argc,
         sqlite3_value **argv
         ){
-    assert( 0==argc );
+    assert( 0 == argc );
     assert( zShellStatic );
     sqlite3_result_text(context, zShellStatic, -1, SQLITE_STATIC);
 }
@@ -253,7 +273,7 @@ static void shellstaticFunc(
 
 static char *local_getline(char *zPrompt, FILE *in){
     char *zLine;
-    int nLine;
+    size_t nLine;
     int n;
     int eol;
 
@@ -262,14 +282,16 @@ static char *local_getline(char *zPrompt, FILE *in){
         fflush(stdout);
     }
     nLine = 100;
-    zLine = malloc( nLine );
+    zLine = (char*)malloc( nLine );
     if( zLine==0 ) return 0;
     n = 0;
     eol = 0;
-    while( !eol ){
-        if( n+100>nLine ){
-            nLine = nLine*2 + 100;
-            zLine = realloc(zLine, nLine);
+    while( !eol )
+    {
+        if( n + 100 > nLine )
+        {
+            nLine = nLine * 2 + 100;
+            zLine = (char*)realloc(zLine, nLine);
             if( zLine==0 ) return 0;
         }
         if( fgets(&zLine[n], nLine - n, in)==0 ){
@@ -288,12 +310,13 @@ static char *local_getline(char *zPrompt, FILE *in){
             eol = 1;
         }
     }
-    zLine = realloc( zLine, n+1 );
+    zLine = (char*)realloc( zLine, n+1 );
     return zLine;
 }
 
 /* BWT */
-static char *oc_getline(char *zPrompt, char *occmd) {
+static char *oc_getline(char *zPrompt, char *occmd)
+{
     return occmd;
 }
 
